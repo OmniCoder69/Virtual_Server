@@ -24,7 +24,7 @@ I personally recommend **Ventoy** because it allows multiple bootable ISO files 
 
 ## Installing Proxmox VE
 
-For demonstration purposes, I installed Proxmox inside an [Oracle VirtualBox](https://www.virtualbox.org/) virtual machine.
+For demonstration purposes, I installed Proxmox inside an [Oracle VirtualBox](https://www.virtualbox.org/) virtual machine. Which if you are just starting out small you do not need a USB drive you can run the Proxmox ISO file directly on VirtualBox. 
 
 As seen in [Example 1.1](#example-1-1) I created a vm with 300gb to show what it would look like to install proxmox. 
 
@@ -33,11 +33,50 @@ The actual server is installed directly on its own dedicated hard drive.
 **Warning**
 When installing Proxmox make sure you are selecting the correct destination of where you want to install it because Proxmox will delete any and all data that is being installed on the selected location.
 
+When going through the install process Proxmox will ask you to create a password for the root user account. Be sure to remember this password becaue thats how you will be able to log into the proxmox server console and web page. The deault user account is named "root" which can be be changed later if you decide to. Also it will ask you to create a domain name for your Proxmox server for my example I set my domain name to uno. Setting your domain name shouldn't affect how you login.
+
 <h4 id="example-1-1">Example 1.1 - Proxmox Installation Agreement</h4>
 <img src="/proxmox/img/agreement_prox.png" alt="Download of proxmox to hard drive" width="500" height="450">   
 
+Proxmox does not have a Gui interface when launching on the device Proxmox was installed on, instead it launches straight into the terminal. When loging in type the username which is "root" if you haven't changed it enter, and then type the password you set when first installing Proxmox. If everything was configured correctly you should be free to roam through the system through the command line. 
+
 <h4 id="example-1-2">Example 1.2 - First Boot Terminal</h4>
 <img src="/proxmox/img/terminal_prox.png" alt="Once proxmox is done installing" width="500" height="450">   
+
+Proxmox does have a web interface that you can connect through on another device. As seen in [Example 1.2](#example-1-2) The welcome page for Proxmox should show something like this **https://"your ip address":8006/** where port 8006 is the default TCP protocol that Proxmox uses to connect. When connecting to your webpage through your prefered web browser you should see something like this [Example 1.3](#example-1-3) 
+
+**Warning** Make sure that your Proxmox server and the device you are using to connect to the web page are on the same network and subnet. If not your device will not be able to connect to the web interface. If you need to troubleshoot and find out what subnet and ip address your device is using on the network use these commands in your terminal depending on what OS system you are using.
+- Windows: ipconfig
+- Linux: ip -a
+- Mac: curl ifconfig.me
+  
+If your Proxmox server is on a different subnet than the rest of your network, you will need to update its network configuration.
+
+Example:
+
+Your computer: 192.168.0.32
+Proxmox server: 172.16.0.10
+
+Since these devices are on different subnets, they will not be able to communicate without additional routing.
+
+To change the Proxmox IP address, open the Proxmox terminal and edit the network configuration file using your preferred text editor:
+
+nano /etc/network/interfaces
+
+Inside the file, locate the following lines:
+
+- address
+- gateway
+
+Before changing these values, determine which IP addresses are available on your network. From another device connected to your network, run:
+
+arp -a
+
+Choose an unused IP address that matches your network's subnet, then update both the address and gateway fields. Save the file and reboot or restart the networking service to apply the changes. your new address and gateway should look similar to this example depending on your devices ip.
+- Your computer: 192.168.0.32
+- Proxmox Server: 192.168.0._(ip not being used)
+- Gateway: 192.168.0.1 (Routers ip which is usually default to 1)
+
 
 <h4 id="example-1-3">Example 1.3 - Web Interface Login</h4>
 <img src="/proxmox/img/web_prox.png" alt="Description" width="500" height="450">   

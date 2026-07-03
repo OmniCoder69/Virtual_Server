@@ -1,6 +1,13 @@
 # Intro to Proxmox
 
-[Proxmox](https://www.proxmox.com/en/downloads) is an open source server soloution that provides dowloads for iso files such as the Proxmox VE, Proxmox Backup Server, Proxmox Mail Gateway, and Proxmox Datacenter Manager. For my setup I downloaded the Proxmox VE iso file.
+[Proxmox](https://www.proxmox.com/en/downloads) is an open-source virtualization platform that provides several server solutions including:
+
+- Proxmox VE
+- Proxmox Backup Server
+- Proxmox Mail Gateway
+- Proxmox Datacenter Manager
+
+For this homelab, I installed **Proxmox VE**.
 
 In order to install Proxmox VE on a dedicated HDD or SSD you must first upload it a bootable USB drive with a software such as [Rufus](https://rufus.ie/en/). The better alternative in my opinion is using [Ventoy](https://www.ventoy.net/en/index.html). Ventoy is an opensource software that allows you to have multiple bootable install files all in one USB drive.
 

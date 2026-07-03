@@ -26,9 +26,12 @@ I personally recommend **Ventoy** because it allows multiple bootable ISO files 
 
 For demonstration purposes, I installed Proxmox inside an [Oracle VirtualBox](https://www.virtualbox.org/) virtual machine.
 
-As seen in [Example 1.1](#example-1-1) I created a vm with 300gb to show what it would look like to install proxmox.
+As seen in [Example 1.1](#example-1-1) I created a vm with 300gb to show what it would look like to install proxmox. 
 
 The actual server is installed directly on its own dedicated hard drive.
+
+**Warning**
+When installing Proxmox make sure you are selecting the correct destination of where you want to install it because Proxmox will delete any and all data that is being installed on the selected location.
 
 <h4 id="example-1-1">Example 1.1 - Proxmox Installation Agreement</h4>
 <img src="/proxmox/img/agreement_prox.png" alt="Download of proxmox to hard drive" width="500" height="450">   

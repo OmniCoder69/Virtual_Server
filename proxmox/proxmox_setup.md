@@ -9,9 +9,26 @@
 
 For this homelab, I installed **Proxmox VE**.
 
-In order to install Proxmox VE on a dedicated HDD or SSD you must first upload it a bootable USB drive with a software such as [Rufus](https://rufus.ie/en/). The better alternative in my opinion is using [Ventoy](https://www.ventoy.net/en/index.html). Ventoy is an opensource software that allows you to have multiple bootable install files all in one USB drive.
+## Creating the Installation USB
 
-For the sake of showing you how proxmox looks when launching the install I used [Oracle VirtualBox](https://www.virtualbox.org/) to create a VM with Proxmox iso file. As you can see in [Example 1.1](#example-1-1) I created a VM in VirtualBox with 300gb of storage that proxmox is installing on. My real proxmox is on an entire HDD dedicated to proxmox only.
+Before installing Proxmox, the ISO must be written to a bootable USB drive.
+
+Two common tools are:
+
+- [Rufus](https://rufus.ie/en/)
+- [Ventoy](https://www.ventoy.net/en/index.html)
+
+**Recommendation**
+I personally recommend **Ventoy** because it allows multiple bootable ISO files to exist on a single USB drive. Instead of reformatting the drive every time you need another operating system, simply copy additional ISO files onto the USB.
+
+
+## Installing Proxmox VE
+
+For demonstration purposes, I installed Proxmox inside an [Oracle VirtualBox](https://www.virtualbox.org/) virtual machine.
+
+As seen in [Example 1.1](example-1-1) I created a vm with 300gb to show what it would look like to install proxmox.
+
+The actual server is installed directly on its own dedicated hard drive.
 
 <h4 id="example-1-1">Example 1.1 - Proxmox Installation Agreement</h4>
 <img src="/proxmox/img/agreement_prox.png" alt="Download of proxmox to hard drive" width="500" height="450">   

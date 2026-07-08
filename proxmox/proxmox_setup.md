@@ -117,7 +117,12 @@ One main source that I would like to mention is [Proxmox VE Helper-Scripts](http
 <h4 id="example-1-5">Example 1.5 - Proxmox VE Helper Scripts</h4>
 <img src="/proxmox/img/porxmoxhelper.png" alt="Description" width="500" height="450">   
 
-An example script found through this Helper-Scripts community was PVE Post install script. The PVE Post install script automates the tasks of turning off enterprise mode and enterprise ads on your Proxmox install. Enabling the no-subscription mode in Proxmox and allows for updates to be received by your Proxmox install.
+An example script found through this Helper-Scripts community was PVE Post install script. The PVE Post install script automates the tasks of configuring Proxmox catering for home lab use such as:
+- Enabling the no-sub repository
+- Disables the enterprise repository if you aren't paying for the subscription
+- Updates package list
+- Upgrades entire system
+- Disables the "No valid subsctiption" ad
 <h4 id="example-1-6">Example 1.6 - Proxmox Dashboard</h4>
 <img src="/proxmox/img/pve.png" alt="Description" width="500" height="450">   
 

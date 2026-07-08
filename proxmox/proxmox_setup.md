@@ -1,4 +1,4 @@
-# Intro to Proxmox
+# Introduction to Proxmox
 
 [Proxmox](https://www.proxmox.com/en/downloads) is an open-source virtualization platform that provides several server solutions including:
 
@@ -62,7 +62,7 @@ Since these devices are on different subnets, they will not be able to communica
 
 To change the Proxmox IP address, open the Proxmox terminal and edit the network configuration file using your preferred text editor:
 
-nano /etc/network/interfaces
+Example: "nano /etc/network/interfaces"
 
 Inside the file, locate the following lines:
 
@@ -80,16 +80,19 @@ Choose an unused IP address that matches your network's subnet, then update both
 
 
 <h4 id="example-1-3">Example 1.3 - Web Interface Login</h4>
-<img src="/proxmox/img/web_prox.png" alt="Description" width="500" height="450">   
+<img src="/proxmox/img/login_prox.png" alt="Description" width="500" height="450">   
 
-<h4 id="example-1-4">Example 1.4 - Proxmox VE Helper Scripts</h4>
+Uploading ISO files onto your proxmox server is fairly simple. In order to do so you must navigate to the local storage tab and click ISO image tab. It should go something like this:
+local (node name)> ISO images> Upload
+Proxmox allows you two options to insert your desired ISO image into the server. Either uploading from your device or by downloading the file from the source through the url. An example can be seen in [Example 1.4](#example-1-4)
+<h4 id="example-1-4">Example 1.4 - Uploading an ISO</h4>
+<img src="/proxmox/img/upload_iso.png" alt="Description" width="500" height="450">   
+
+<h4 id="example-1-5">Example 1.5 - Proxmox VE Helper Scripts</h4>
 <img src="/proxmox/img/porxmoxhelper.png" alt="Description" width="500" height="450">   
 
-<h4 id="example-1-5">Example 1.5 - Proxmox Dashboard</h4>
+<h4 id="example-1-6">Example 1.6 - Proxmox Dashboard</h4>
 <img src="/proxmox/img/pve.png" alt="Description" width="500" height="450">   
-
-<h4 id="example-1-6">Example 1.6 - Uploading an ISO</h4>
-<img src="/proxmox/img/upload_iso.png" alt="Description" width="500" height="450">   
 
 <h4 id="example-1-7">Example 1.7 - Removing the Enterprise Repository Notice</h4>
 <img src="/proxmox/img/nosub.png" alt="Description" width="500" height="450">   

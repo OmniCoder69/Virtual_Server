@@ -1,4 +1,4 @@
-# Introduction to Proxmox
+# Introduction to Proxmox - Walkthrough 
 
 [Proxmox](https://www.proxmox.com/en/downloads) is an open-source virtualization platform that provides several server solutions including:
 
@@ -93,20 +93,21 @@ local (node name) → ISO Images → Upload
 
 Proxmox provides two methods for adding ISO images to your server:
 
-Upload from your local device – Select an ISO file stored on your computer.
-Download from a URL – Provide the direct download link, and Proxmox will retrieve the ISO for you.
+- Upload from your local device – Select an ISO file stored on your computer.
+- Download from a URL – Provide the direct download link, and Proxmox will retrieve the ISO for you.
 
 Both methods are shown in [Example 1.4](#example-1-4)
 
 <h4 id="example-1-4">Example 1.4 - Uploading an ISO</h4>
 <img src="/proxmox/img/upload_iso.png" alt="Description" width="500" height="450">   
 
+## Extra Tools
+
+One main source that I would like to mention is [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE). This is a community driven project found on Github that can help setup and customize Proxmox by using automated scripts to allow users to install services they may need.  
 <h4 id="example-1-5">Example 1.5 - Proxmox VE Helper Scripts</h4>
 <img src="/proxmox/img/porxmoxhelper.png" alt="Description" width="500" height="450">   
 
+An example script found through this Helper-Scripts community was PVE Post install script. The PVE Post install script automates the tasks of turning off enterprise mode and enterprise ads on your Proxmox install. Enabling the no-subscription mode in Proxmox and allows for updates to be recieved by your Proxmox install.
 <h4 id="example-1-6">Example 1.6 - Proxmox Dashboard</h4>
 <img src="/proxmox/img/pve.png" alt="Description" width="500" height="450">   
-
-<h4 id="example-1-7">Example 1.7 - Removing the Enterprise Repository Notice</h4>
-<img src="/proxmox/img/nosub.png" alt="Description" width="500" height="450">   
 

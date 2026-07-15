@@ -24,8 +24,19 @@ The goal of this project was to implement a secure remote administrative tool fo
 | WireGuard Server | 10.6.0.1 |
 | Windows Client | 10.6.0.2 |
 
+#
+
 ## Project Workflow
-<h3>1. Configuring SSH Connection</h3>
+
+<h3>1. Deploy WireGuard</h3>
+
+- Installed the WireGuard Community Script inside an LXC container.
+- Verified WireGuard service installation.
+- Generated initial client configuration.
+
+# 
+
+<h3>2. Configuring SSH Connection</h3>
 
 - Generated SSH key pair on Windows
 
@@ -54,3 +65,123 @@ When starting this project I wanted to ensure that ssh connection was working pr
 The private key must never be exposed because if an unauthorized user ever gains access to the private key they can gain access through ssh. 
 
 # 
+
+<h3>3. Initial VPN Testing</h3>
+
+Successfully established a WireGuard handshake.
+
+Verified using:
+```bash
+wg show
+```
+#
+
+<h3>Issue 1 - VPN Address Conflict</h3>
+
+**Problem**
+
+WireGuard automatically generated:
+
+10.0.0.0/24
+
+which matched the home LAN.
+
+Symptoms
+Routing conflicts
+Internet access blocked
+Unable to reach Proxmox through the VPN
+Resolution
+
+Migrated the VPN to:
+
+10.6.0.0/24
+
+Updated:
+
+- Server Address
+- Client Address
+- AllowedIPs
+# 
+
+<h3>Issue 2 - Endpoint Configuration</h3>
+
+**Problem**
+
+Generated client profile contained:
+
+Endpoint = 127.0.1.1
+Cause
+
+Loopback address.
+
+Resolution
+
+Configured the endpoint to use the public IP address.
+
+Future improvement:
+
+- Configure Dynamic DNS
+- Replace public IP with hostname
+# 
+
+<h3>Issue 3 - Remote Access</h3>
+
+Configured:
+
+- Port Forwarding (Adding rule may very depending on your router provider)
+- Port 51820
+
+Destination:
+- WireGuard Container/ Wireguard IP
+
+Successfully connected over:
+
+- Mobile Hotspot
+- External Internet
+
+Successfully accessed:
+
+- Proxmox Web Interface
+- SSH
+#
+## Useful Commands
+
+<h3>WireGuard</h3>
+
+```bash
+wg show
+wg-quick up wg0
+wg-quick down wg0
+```
+#
+<h3>Networking</h3>
+
+```bash
+ip addr
+ip route
+ping
+```
+#
+<h3>Firewall / NAT</h3>
+
+```bash
+iptables -L -n -v
+iptables -t nat -L -n -v
+```
+#
+<h3>SSH</h3>
+
+```bash
+systemctl restart ssh
+systemctl status ssh
+```
+#
+<h3>Windows</h3>
+
+```bash
+ipconfig
+route print
+```
+#
+<h3>Outcome</h3>
+Successfully deployed a secure remote connection to Proxmox through SSH authentication, and Wireguard VPN. This follows security best practices by using VPN access, public key authentication, network segmentation, and NAT-based routing. 

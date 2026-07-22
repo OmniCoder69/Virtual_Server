@@ -58,9 +58,9 @@ As shown in [Example 1.1](#example-1-1), `vmbr0` carries the `10.0.0.44/24` addr
 <h4 id="example-1-1">Example 1.1 - Proxmox Network Bridges</h4>
 <img src="img/create_vmbr1.png" alt="Proxmox node network list showing vmbr0 with 10.0.0.44/24 and the isolated vmbr1 with no address" width="500" height="450">
 
-<h3>2. Create the pfSense VM</h3>
+<h3 id="2-create-the-pfsense-vm">2. Create the pfSense VM</h3>
 
-Download the [Netgate pfSense installer ISO](https://www.pfsense.org/download/) and upload it to Proxmox local storage (see the ISO upload step in the [Proxmox walkthrough](../proxmox/proxmox_setup.md#uploading-iso-images)). Then create a new VM with the following settings:
+Download the [Netgate pfSense installer ISO](https://www.pfsense.org/download/) and upload it to Proxmox local storage (see the ISO upload step in the [Proxmox walkthrough](../proxmox/proxmox_setup.md#5-upload-iso-images)). Then create a new VM with the following settings:
 
 | Setting | Value |
 | --- | --- |
@@ -82,7 +82,7 @@ Both are shown attached to the VM in [Example 1.2](#example-1-2).
 <h4 id="example-1-2">Example 1.2 - pfSense VM Hardware (two NICs)</h4>
 <img src="img/add_vmbr.png" alt="pfSense VM 101 hardware showing net0 on vmbr0 and net1 on vmbr1" width="500" height="450">
 
-<h3>3. Boot the Installer</h3>
+<h3 id="3-boot-the-installer">3. Boot the Installer</h3>
 
 Start the VM and open the console. Because the VM is set to UEFI, it lands on the boot device menu shown in [Example 1.3](#example-1-3). Select the **QEMU DVD-ROM** entry to boot the pfSense installer, then walk through the installer (accept the defaults for a standard install, choose the 26 GB VirtIO disk as the target).
 

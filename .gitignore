@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# Virtual_Server — .gitignore
+# Purpose: make it HARD to accidentally commit a secret from this homelab.
+# WireGuard private keys, SSH private keys, and filled-in variable files must
+# never land in a public repo. Only *.example / *.sample templates are tracked.
+# ---------------------------------------------------------------------------
+
+# --- WireGuard secrets -----------------------------------------------------
+# Real tunnel configs and keys. Commit configs/wireguard/wg0.conf.example only.
+wg0.conf
+*.conf
+!*.conf.example
+privatekey
+publickey
+*.key
+*_private.key
+preshared*.key
+
+# --- SSH private keys ------------------------------------------------------
+id_rsa
+id_ed25519
+*.pem
+*.ppk
+known_hosts
+
+# --- Infrastructure-as-Code state & real variables -------------------------
+# Terraform state can contain secrets in plaintext. Never commit it.
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+# Ansible real inventories / vault files (commit *.example only)
+inventory.ini
+!inventory.example.ini
+vault.yml
+*.vault
+
+# --- Generic secrets / env -------------------------------------------------
+.env
+.env.*
+!.env.example
+secrets/
+*.secret
+
+# --- OS / editor noise -----------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/

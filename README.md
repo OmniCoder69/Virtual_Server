@@ -98,8 +98,14 @@ flowchart TB
 | [Security model](SECURITY.md) | How keys are handled and how the isolation boundary works | — |
 | [Roadmap](ROADMAP.md) | Where this is headed next | — |
 
-Coming in this branch: a hands-on `docs/lab-guide.md`, plus reproducible
-`scripts/` and Infrastructure-as-Code under `infra/` (Terraform + Ansible).
+**This isn't just docs — the build is reproducible:**
+
+| Resource | What it does |
+| --- | --- |
+| **[`scripts/`](scripts/)** | Create the isolated `vmbr1` bridge; generate WireGuard client profiles — dry-run by default |
+| **[Infrastructure-as-Code](infra/README.md)** | Terraform (`bpg/proxmox`) to create the lab VMs + Ansible to baseline them |
+| **[Hands-on lab guide](docs/lab-guide.md)** | A beginner-followable first attacker-vs-target exercise on the isolated range |
+| **[`Makefile`](Makefile)** | One entrypoint (`make help`) tying the stages together |
 
 ---
 
@@ -112,8 +118,9 @@ Everything here is grounded in what's actually built in this repo:
 - **VPN deployment** — stood up a WireGuard tunnel (`10.6.0.0/24`) for remote administration over port `51820`.
 - **SSH hardening** — key-only authentication (`ed25519`), `PermitRootLogin prohibit-password`, password auth disabled — management is never exposed directly to the internet.
 - **Firewall / router deployment** — built a pfSense VM with separate WAN and LAN interfaces to route and firewall the lab.
-- **Network troubleshooting & root-cause analysis** — diagnosed and fixed a VPN subnet collision with the home LAN and a bad client endpoint (documented in the [WireGuard writeup](wireguard/wireguard_setup.md#troubleshooting--war-stories)).
+- **Network troubleshooting & root-cause analysis** — diagnosed and fixed a VPN subnet collision with the home LAN and a bad client endpoint (documented in the [WireGuard writeup](wireguard/wireguard_setup.md#troubleshooting-and-war-stories)).
 - **Secure-by-design thinking** — the whole architecture is organized around a clear trust boundary (see [SECURITY.md](SECURITY.md)).
+- **Infrastructure-as-Code & automation** — Terraform (`bpg/proxmox`) and Ansible to reproduce the lab from code, plus idempotent, dry-run-first shell scripts (see [`infra/`](infra/README.md) and [`scripts/`](scripts/)).
 - **Technical documentation** — reproducible, screenshot-backed writeups for each stage.
 
 ---
@@ -130,7 +137,7 @@ Everything here is grounded in what's actually built in this repo:
 | 6 | First lab targets on `vmbr1` (Kali + vulnerable box) | ⬜ Planned | See the lab guide (coming) |
 | 7 | Route WireGuard into the pfSense lab | ⬜ Planned | Fuses remote access + isolated range into one |
 | 8 | VLAN-segment the lab (attacker vs victim nets) | ⬜ Planned | |
-| 9 | Automate the build (Terraform + Ansible) | ⬜ Planned | `infra/` scaffolding in this branch |
+| 9 | Automate the build (scripts + Terraform + Ansible) | 🚧 Scaffolding written | Code lives in [`scripts/`](scripts/) + [`infra/`](infra/README.md); reviewed but **not yet run** against the live host |
 
 ---
 
@@ -141,6 +148,8 @@ Virtual_Server/
 ├── README.md                  ← you are here
 ├── SECURITY.md                ← key handling + isolation model
 ├── ROADMAP.md                 ← what's next
+├── CHANGELOG.md               ← history of changes
+├── Makefile                   ← `make help` — one entrypoint for the stages
 ├── proxmox/                   ← ✅ hypervisor install walkthrough
 │   ├── proxmox_setup.md
 │   └── img/
@@ -149,7 +158,13 @@ Virtual_Server/
 ├── pfsense/                   ← 🚧 firewall + isolated lab network
 │   ├── pfsense_setup.md
 │   └── img/
+├── scripts/                   ← create-vmbr1 + wg-client-gen (dry-run first)
+├── infra/                     ← Infrastructure-as-Code
+│   ├── terraform/             ←   lab VMs on vmbr1 (bpg/proxmox)
+│   └── ansible/               ←   baseline + isolation assertion
+├── configs/                   ← sanitized config templates (*.example)
 └── docs/
+    ├── lab-guide.md           ← hands-on attacker-vs-target exercise
     ├── img/network_architecture.{png,svg}
     └── network_architecture.mmd
 ```

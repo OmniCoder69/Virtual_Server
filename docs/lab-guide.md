@@ -84,7 +84,7 @@ ping -c2 10.0.0.1        # home router: should FAIL (100% packet loss)
 ```
 
 If `10.0.0.1` is reachable, **stop** — your isolation is broken. Recheck the
-pfSense `LAN → 10.0.0.0/24` block rule in [the firewall doc](../pfsense/pfsense_setup.md#6-firewall--isolation-rules).
+pfSense `LAN → 10.0.0.0/24` block rule in [the firewall doc](../pfsense/pfsense_setup.md#6-firewall-and-isolation-rules).
 (The [Ansible baseline](../infra/README.md) automates this exact check and fails
 loudly if it's wrong.)
 

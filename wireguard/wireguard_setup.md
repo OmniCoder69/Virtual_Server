@@ -71,7 +71,7 @@ Established a successful WireGuard handshake and verified it with:
 wg show
 ```
 
-## Troubleshooting / War Stories
+## Troubleshooting and War Stories
 
 These are the two real bugs I hit bringing the tunnel up, and how I fixed each. Documenting them because they're the parts someone else will actually run into.
 

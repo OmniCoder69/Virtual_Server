@@ -26,7 +26,7 @@ The goal of this project was to add a virtual firewall/router to the Proxmox hom
 | Lab VMs | vmbr1 | 10.10.10.0/24 *(via pfSense DHCP)* |
 
 > [!NOTE]
-> The LAN subnet (`10.10.10.0/24`) is the value I am using for the lab. Pick any private range that does **not** overlap your home LAN (`10.0.0.0/24`) — reusing the home subnet here causes the same kind of routing conflict I ran into on the [WireGuard project](../wireguard/wireguard_setup.md#troubleshooting--war-stories).
+> The LAN subnet (`10.10.10.0/24`) is the value I am using for the lab. Pick any private range that does **not** overlap your home LAN (`10.0.0.0/24`) — reusing the home subnet here causes the same kind of routing conflict I ran into on the [WireGuard project](../wireguard/wireguard_setup.md#troubleshooting-and-war-stories).
 
 <h3>Understanding the Two Bridges</h3>
 
@@ -120,7 +120,7 @@ https://10.10.10.1
 
 Default credentials are `admin` / `pfsense`. Change the password immediately, then run the initial Setup Wizard (hostname, DNS, timezone).
 
-<h3>6. Firewall & Isolation Rules</h3>
+<h3 id="6-firewall-and-isolation-rules">6. Firewall &amp; Isolation Rules</h3>
 
 Out of the box pfSense already does most of what this lab needs: the **LAN can start connections outbound** (to the internet, via NAT through WAN), but the **WAN side cannot start connections into the LAN**. That alone keeps the home network from reaching the lab.
 

@@ -1,0 +1,33 @@
+# =============================================================================
+# wg0.conf.example — WireGuard SERVER config (runs in CT 100, 10.0.0.121)
+# =============================================================================
+# This is a TEMPLATE. Copy it to wg0.conf, fill in the <PLACEHOLDER> keys, and
+# keep the real file OUT of git (the repo .gitignore already blocks *.conf).
+#
+# Real values that ARE documented (see ../../wireguard/wireguard_setup.md):
+#   VPN subnet   : 10.6.0.0/24
+#   Server tunnel: 10.6.0.1
+#   Client tunnel: 10.6.0.2
+#   Listen port  : 51820/udp   (port-forwarded at the router to this container)
+#
+# Generate the server keys with:
+#   wg genkey | tee privatekey | wg pubkey > publickey
+# Generate client profiles with:  ../../scripts/wg-client-gen.sh
+# =============================================================================
+
+[Interface]
+Address = 10.6.0.1/24
+ListenPort = 51820
+PrivateKey = <SERVER_PRIVATE_KEY>
+
+# NAT the tunnel out to the LAN so clients can reach 10.0.0.0/24 (and beyond).
+# Replace eth0 with the container's real LAN interface (check with: ip -br a).
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# --- Peers: one [Peer] block per client -------------------------------------
+# The wg-client-gen.sh script prints a ready-to-paste block like this one.
+[Peer]
+# laptop (example)
+PublicKey = <CLIENT_PUBLIC_KEY>
+AllowedIPs = 10.6.0.2/32

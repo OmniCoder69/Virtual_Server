@@ -1,0 +1,10 @@
+---
+# Copy to group_vars/all.yml (git-ignored) to override lab-wide defaults.
+# Example: swap the attacker toolset installed by playbook.yml.
+attacker_packages:
+  - tmux
+  - git
+  - curl
+  - net-tools
+  - nmap
+  - python3-pip

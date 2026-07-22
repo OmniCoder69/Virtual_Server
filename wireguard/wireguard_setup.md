@@ -1,187 +1,162 @@
+<sub>[← Back to README](../README.md) · Related: [Proxmox setup](../proxmox/proxmox_setup.md) · [pfSense firewall](../pfsense/pfsense_setup.md)</sub>
+
 # WireGuard VPN & Secure Remote Administration on Proxmox
+
 ## Project Overview
-The goal of this project was to implement a secure remote administrative tool for my Proxmox homelab. I did this by using WireGuard VPN and SSH based authentication. This tool allows for a secure connection to Proxmox without exposing management systems to the internet.
+The goal of this project was to implement a secure remote administrative tool for my Proxmox homelab. I did this by using a WireGuard VPN together with SSH key-based authentication. This lets me connect to Proxmox securely from anywhere **without exposing the management interface to the internet** — the only thing the outside world can reach is the VPN's single UDP port.
 
 <h3>Objective</h3>
-  
-- Implement WireGuard VPN within Proxmox 
+
+- Deploy WireGuard inside Proxmox (in an LXC container, **CT 100**)
 - Enable secure remote access to the Proxmox web interface
-- Configure SSH key authentication for root account on Proxmox
+- Configure SSH key authentication for the root account on Proxmox
 - Disable password-based SSH authentication
 
 <h3>Network Architecture</h3>
 
-| Devices | Address |
-| --- | --- |
-| Router | 10.0.0.1 |
-| Proxmox | 10.0.0.44 |
-| WireGuard Container| 10.0.0.121 |
+| Role | Address | Network |
+| --- | --- | --- |
+| Home router (gateway) | 10.0.0.1 | Home LAN `10.0.0.0/24` |
+| Proxmox host (node `uno`) | 10.0.0.44 | Home LAN |
+| WireGuard container (CT 100) | 10.0.0.121 | Home LAN |
+| WireGuard **server** (tunnel side) | 10.6.0.1 | VPN `10.6.0.0/24` |
+| Remote **client** (e.g. Windows laptop) | 10.6.0.2 | VPN `10.6.0.0/24` |
+| Listening port | UDP **51820** | port-forwarded at the router |
 
-<h3>VPN Network</h3>
-
-| Devices | Address |
-| --- | --- |
-| WireGuard Server | 10.6.0.1 |
-| Windows Client | 10.6.0.2 |
-
-#
+*Why a separate `10.6.0.0/24` for the tunnel:* the VPN needs its own address space that does **not** overlap the home LAN. That detail turned out to matter — see [War Story #1](#issue-1--vpn-address-conflict).
 
 ## Project Workflow
 
 <h3>1. Deploy WireGuard</h3>
 
-- Installed the WireGuard Community Script inside an LXC container.
-- Verified WireGuard service installation.
-- Generated initial client configuration.
+- Installed WireGuard from the community LXC script inside a container (**CT 100**).
+- Verified the WireGuard service was installed and running.
+- Generated the initial client configuration.
 
-# 
+<h3>2. Configure SSH Key Authentication</h3>
 
-<h3>2. Configuring SSH Connection</h3>
+The idea here is to replace "something you know" (a password) with "something you have" (a private key), so that only a machine holding the matching key can log in.
 
-- Generated SSH key pair on Windows
+- Generate an SSH key pair on the client (Windows):
 
-Example: 
-```bash
-ssh-keygen -t ed25519
-```
+  ```bash
+  ssh-keygen -t ed25519
+  ```
 
-- Copy newly generated public key to ssh authorized keys
+- Copy the newly generated **public** key into the authorized-keys file on Proxmox:
 
-Example: 
-```bash
-/root/.ssh/authorized_keys
-```
+  ```bash
+  /root/.ssh/authorized_keys
+  ```
 
-<h4>Configure SSH:</h4>
+- Harden the SSH daemon (`/etc/ssh/sshd_config`) so it accepts keys and refuses passwords for root:
 
-```bash
-PermitRootLogin prohibit-password
-PubkeyAuthentication yes
-```
-<h3>Summary</h3>
-When starting this project I wanted to ensure that ssh connection was working properly, to do this I needed to generate key pairs using the ssh keygen tool. Using this tool generates a public key, and private key file. These key pairs are important because they allow for devices to authenticate eachother if they have the same key pair. Thats why it is important to paste the public key to the authorized key file in the desired device you are trying to connect to. For best security practices I configured ssh to not allow password authentication. This ensures that anyone that is trying to ssh into the device must have the same key pair to enter.
+  ```bash
+  PermitRootLogin prohibit-password
+  PubkeyAuthentication yes
+  ```
 
->[!WARNING]
-The private key must never be exposed because if an unauthorized user ever gains access to the private key they can gain access through ssh. 
+<h4>Why this matters</h4>
 
-# 
+When starting this project I wanted to make sure the SSH connection was working properly. To do this I needed to generate a key pair using the `ssh-keygen` tool. This generates a public key and a private key. The key pair is what lets two devices authenticate each other: you paste the **public** key into the `authorized_keys` file on the device you're connecting to, and the machine holding the matching **private** key is the only one allowed in. For best security practices I configured SSH to not allow password authentication. That way anyone trying to SSH into the device must have the correct key — a stolen or guessed password gets them nowhere.
+
+> [!WARNING]
+> The private key must never be exposed. If an unauthorized user ever gains access to the private key, they can log in over SSH as if they were you.
 
 <h3>3. Initial VPN Testing</h3>
 
-Successfully established a WireGuard handshake.
+Established a successful WireGuard handshake and verified it with:
 
-Verified using:
 ```bash
 wg show
 ```
-#
 
-<h3>Issue 1 - VPN Address Conflict</h3>
+## Troubleshooting and War Stories
 
-**Problem**
+These are the two real bugs I hit bringing the tunnel up, and how I fixed each. Documenting them because they're the parts someone else will actually run into.
 
-WireGuard automatically generated:
+<h3 id="issue-1--vpn-address-conflict">Issue 1 — VPN address conflict</h3>
 
-10.0.0.0/24
+**Problem.** WireGuard automatically generated the tunnel network as `10.0.0.0/24` — the same subnet as my home LAN.
 
-which matched the home LAN.
+**Symptoms.**
+- Routing conflicts
+- Internet access blocked while connected
+- Unable to reach Proxmox through the VPN
 
-Symptoms
-Routing conflicts
-Internet access blocked
-Unable to reach Proxmox through the VPN
-Resolution
+**Root cause.** With the tunnel and the home LAN claiming the *same* subnet, the client couldn't tell which route to use for `10.0.0.x` — so traffic meant for Proxmox (and for the internet) went the wrong way.
 
-Migrated the VPN to:
-
-10.6.0.0/24
-
-Updated:
+**Resolution.** Migrated the VPN to its own range, `10.6.0.0/24`, and updated:
 
 - Server Address
 - Client Address
-- AllowedIPs
-# 
+- `AllowedIPs`
 
-<h3>Issue 2 - Endpoint Configuration</h3>
+<h3 id="issue-2--endpoint-configuration">Issue 2 — Endpoint configuration</h3>
 
-**Problem**
+**Problem.** The generated client profile contained `Endpoint = 127.0.1.1`.
 
-Generated client profile contained:
+**Root cause.** `127.0.1.1` is a loopback address — it points the client back at *itself* instead of at the WireGuard server, so the tunnel can never actually reach home.
 
-Endpoint = 127.0.1.1
-Cause
+**Resolution.** Set the endpoint to the network's **public IP address**.
 
-Loopback address.
-
-Resolution
-
-Configured the endpoint to use the public IP address.
-
-Future improvement:
-
+**Future improvement.**
 - Configure Dynamic DNS
-- Replace public IP with hostname
-# 
+- Replace the public IP with a hostname (so the profile keeps working when the ISP changes the IP)
 
-<h3>Issue 3 - Remote Access</h3>
+<h3 id="issue-3--remote-access">Issue 3 — Remote access (port forwarding)</h3>
 
-Configured:
+To let the tunnel be reached from outside the house, I configured port forwarding at the router:
 
-- Port Forwarding (Adding rule may very depending on your router provider)
-- Port 51820
+- **Port 51820** (the WireGuard listening port; adding the rule varies by router vendor)
+- **Destination:** the WireGuard container / WireGuard IP
 
-Destination:
-- WireGuard Container/ Wireguard IP
+## Verification
 
-Successfully connected over:
+Confirmed the remote-access path end to end:
 
-- Mobile Hotspot
-- External Internet
+- Successfully connected over a **mobile hotspot** and from the **external internet** (not on the home Wi-Fi)
+- Reached the **Proxmox web interface** through the tunnel
+- Reached the host over **SSH** (key-only)
 
-Successfully accessed:
-
-- Proxmox Web Interface
-- SSH
-#
 ## Useful Commands
 
 <h3>WireGuard</h3>
 
 ```bash
-wg show
-wg-quick up wg0
-wg-quick down wg0
+wg show             # show tunnel status / handshakes / transfer
+wg-quick up wg0     # bring the tunnel up
+wg-quick down wg0   # bring the tunnel down
 ```
-#
+
 <h3>Networking</h3>
 
 ```bash
-ip addr
-ip route
-ping
+ip addr             # interface addresses
+ip route            # routing table (handy for the Issue 1 conflict)
+ping                # basic reachability
 ```
-#
+
 <h3>Firewall / NAT</h3>
 
 ```bash
-iptables -L -n -v
-iptables -t nat -L -n -v
+iptables -L -n -v          # filter rules
+iptables -t nat -L -n -v   # NAT rules
 ```
-#
+
 <h3>SSH</h3>
 
 ```bash
-systemctl restart ssh
-systemctl status ssh
+systemctl restart ssh   # apply sshd_config changes
+systemctl status ssh    # confirm it came back up
 ```
-#
-<h3>Windows</h3>
+
+<h3>Windows (client side)</h3>
 
 ```bash
-ipconfig
-route print
+ipconfig       # client addressing
+route print    # client routing table
 ```
-#
-<h3>Outcome</h3>
-Successfully deployed a secure remote connection to Proxmox through SSH authentication, and Wireguard VPN. This follows security best practices by using VPN access, public key authentication, network segmentation, and NAT-based routing. 
+
+## Outcome
+Successfully deployed secure remote access to Proxmox using SSH key authentication and a WireGuard VPN. This follows security best practices: VPN-only access instead of exposing management ports, public-key authentication with passwords disabled, a dedicated tunnel subnet separated from the home LAN, and NAT-based routing. The management interface is never directly reachable from the internet — only the single WireGuard UDP port is.

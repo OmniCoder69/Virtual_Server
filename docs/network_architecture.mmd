@@ -1,0 +1,40 @@
+%% Virtual_Server — Homelab Network Architecture
+%% Paste into a GitHub README inside a ```mermaid code block, or view at mermaid.live
+flowchart TB
+    NET["Internet / WAN"]
+    RTR["Home Router / Gateway<br/>10.0.0.1"]
+    REMOTE["Remote admin laptop / phone<br/>WireGuard client · 10.6.0.2"]
+
+    NET --- RTR
+
+    subgraph PVE["Proxmox VE host — node 'uno' · Web UI 10.0.0.44:8006"]
+        NIC["nic0 (physical NIC)"]
+
+        subgraph VMBR0["vmbr0 · WAN / home LAN · 10.0.0.0/24 (uplink via nic0)"]
+            MGMT["Proxmox Web UI<br/>:8006 · 10.0.0.44<br/>✅ BUILT"]
+            WG["WireGuard VPN · LXC<br/>VM 100 · 10.0.0.121<br/>VPN server 10.6.0.1<br/>SSH-key only · ✅ BUILT"]
+            PFWAN["pfSense WAN<br/>vtnet0 → net0"]
+        end
+
+        PF["pfSense · VM 101<br/>Firewall + Router<br/>🟧 IN PROGRESS"]
+
+        subgraph VMBR1["vmbr1 · ISOLATED lab LAN · 10.10.10.0/24 · no uplink"]
+            KALI["Kali Linux<br/>attacker · ⬜ PLANNED"]
+            WIN["Windows target<br/>⬜ PLANNED"]
+            LIN["Linux target<br/>⬜ PLANNED"]
+            META["Metasploitable<br/>vulnerable box · ⬜ PLANNED"]
+        end
+
+        RTR --> NIC --> VMBR0
+        PFWAN --> PF
+        PF --> VMBR1
+    end
+
+    REMOTE -. "WireGuard tunnel · 10.6.0.0/24 · port 51820" .-> WG
+
+    classDef built fill:#dcfce7,stroke:#16a34a,color:#166534;
+    classDef prog fill:#fef3c7,stroke:#d97706,color:#92400e;
+    classDef planned fill:#f1f5f9,stroke:#94a3b8,color:#475569,stroke-dasharray:5 4;
+    class MGMT,WG built;
+    class PF,PFWAN prog;
+    class KALI,WIN,LIN,META planned;

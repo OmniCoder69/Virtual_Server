@@ -1,0 +1,65 @@
+---
+# =============================================================================
+# playbook.yml — baseline the lab machines on the isolated bridge (vmbr1)
+# =============================================================================
+# Run from a host ON the isolated lab network (the lab is walled off on purpose):
+#   ansible-playbook -i inventory.ini playbook.yml --check   # dry-run (no changes)
+#   ansible-playbook -i inventory.ini playbook.yml           # apply
+#
+#   >>> REVIEW before running. Assumes Debian/Ubuntu-family hosts. <<<
+#
+# Only ansible.builtin modules are used, so no extra collections are required.
+# =============================================================================
+
+- name: Baseline attacker boxes (Kali)
+  hosts: attackers
+  become: true
+  gather_facts: true
+  vars:
+    # Override in group_vars/all.yml if you want a different toolset.
+    attacker_packages:
+      - tmux
+      - git
+      - curl
+      - net-tools
+      - nmap
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install common attacker tooling
+      ansible.builtin.apt:
+        name: "{{ attacker_packages }}"
+        state: present
+
+    # ---- Safety assertion: prove the box is actually contained -------------
+    # This makes NO changes. It fails the run if the lab can reach the home LAN,
+    # so a broken isolation boundary is caught before you start attacking.
+    - name: Check internet reachability (expected to succeed)
+      ansible.builtin.command: ping -c1 -W2 8.8.8.8
+      changed_when: false
+
+    - name: Probe the home LAN (expected to FAIL)
+      ansible.builtin.command: ping -c1 -W2 10.0.0.1
+      register: home_ping
+      failed_when: false
+      changed_when: false
+
+    - name: Assert the home network is unreachable from the lab
+      ansible.builtin.assert:
+        that: home_ping.rc != 0
+        fail_msg: "ISOLATION BROKEN: this lab host reached 10.0.0.1 (home LAN)! Fix pfSense before continuing."
+        success_msg: "Isolation OK: home LAN is unreachable from the lab."
+
+- name: (Optional) light touch on targets
+  hosts: targets
+  become: true
+  gather_facts: false
+  # Intentionally-vulnerable legacy targets (e.g. Metasploitable 2) often can't
+  # run modern Ansible, and MUST stay vulnerable — so this play does almost
+  # nothing. Enable real tasks here only for modern targets you actually baseline.
+  tasks:
+    - name: Confirm Ansible can reach the target
+      ansible.builtin.ping: # connectivity check over the Ansible transport (not ICMP)

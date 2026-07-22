@@ -33,11 +33,13 @@ known_hosts
 .terraform.lock.hcl
 crash.log
 
-# Ansible real inventories / vault files (commit *.example only)
+# Ansible real inventories / vault / group_vars (commit *.example only)
 inventory.ini
 !inventory.example.ini
 vault.yml
 *.vault
+group_vars/*.yml
+!group_vars/*.example.yml
 
 # --- Generic secrets / env -------------------------------------------------
 .env
